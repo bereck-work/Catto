@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "catto"
+version = "1.0.0"
+description = "A command line tool for managing your cat pictures."
+authors = ["KortaPo"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+loguru = "^0.6.0"
+Pillow = "^9.0.1"
+questionary = "^1.10.0"
+pyfiglet = "^0.8.post1"
+alive-progress = "^2.3.1"
+requests = "^2.27.1"
+colorama = "^0.4.4"
+click = "^8.0.4"
+
+[tool.poetry.dev-dependencies]
+black = "^22.1.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
