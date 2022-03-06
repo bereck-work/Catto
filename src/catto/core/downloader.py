@@ -1,17 +1,17 @@
-import pathlib
 import random
 import sys
 from io import BytesIO
-from typing import Optional
+from pathlib import Path
+from typing import Optional, Union
 
 import loguru
 import requests
-from PIL import Image
 from alive_progress import alive_bar
 from colorama import Fore
+from PIL import Image
 
-from ..utils.exceptions import PathNotFound, InvalidImage
-from ..utils.enums import ImageType, KeyResponse
+from catto.utils.enums import ImageType, KeyResponseImage, KeyResponseFact
+from catto.utils.exceptions import InvalidImage, PathNotFound
 
 
 class Client:
@@ -27,19 +27,33 @@ class Client:
             "dogs": ImageType.dogs,
             "foxes": ImageType.foxes,
             "birds": ImageType.birds,
+            "panda": ImageType.panda,
+            "red_panda": ImageType.red_panda,
         }
 
-        self.json_response_key_dict = {
-            "cats": KeyResponse.cats,
-            "dogs": KeyResponse.dogs,
-            "foxes": KeyResponse.foxes,
-            "birds": KeyResponse.birds,
+        self.json_response_key_containing_image_url_dict = {
+            "cats": KeyResponseImage.cats,
+            "dogs": KeyResponseImage.dogs,
+            "foxes": KeyResponseImage.foxes,
+            "birds": KeyResponseImage.birds,
+            "panda": KeyResponseImage.panda,
+            "red_panda": KeyResponseImage.red_panda,
         }
-        self.__inner_url = None
+        self.json_response_key_containing_fact_dict = {
+            "cats": KeyResponseFact.cats,
+            "dogs": KeyResponseFact.dogs,
+            "foxes": KeyResponseFact.foxes,
+            "birds": KeyResponseFact.birds,
+            "panda": KeyResponseFact.panda,
+            "red_panda": KeyResponseFact.red_panda,
+        }
+        self.__inner_url: Optional[str] = None
 
-    def get_image_from_url(self, url: str, animal: ImageType) -> Optional[str]:
+    def get_image_url_of_the_animal(
+        self, url: str, animal: ImageType
+    ) -> Union[str, None]:
         """
-        This method gets a cat image from the API.
+        This method fetches and returns the image url from the API for the specified animal category.
 
         Returns:
             Optional[str]: The url of the image.
@@ -48,25 +62,47 @@ class Client:
         response = requests.get(url)
         if response.status_code != 200:
             self.logger.error(
-                f"Error occurred while fetching image from {url}, status code: {response.status_code}"
+                f"Error occurred while fetching image url from {url}, status code: {response.status_code}"
             )
-            return
+            return None
         data: dict = response.json()
-        key = self.json_response_key_dict.get(animal.name)
+        key_in_which_image_url_is_stored = (
+            self.json_response_key_containing_image_url_dict.get(animal.name)
+        )
         # This is a nifty way to get the image url from the json response. All I am doing is that I have an Enum
         # of the keys in the json response for each url for each animal category, and I am getting the value of
-        # Enum, which basically stores the key, for example, https://aws.random.cat/meow If you make a GET
-        # request to the url, you will get a json response, the image url is a key named as 'file' and
-        # KeyResponse.cats.value returns 'file' and then I get the image url for the cute cat image. Just wanted
-        # to avoid if statements.
+        # Enum, which basically stores the key, for example, https://some-random-api.ml/animal/cat, If you make a GET
+        # request to the API, the API returns a json response, the image url is stored in the key named as 'image' and
+        # KeyResponseImage.cats.value returns 'image' and then I get the image url for the cute cat image.
+        # This is just a way to avoid unnecessary if-else statements.
         url_of_image = data.get(
-            key.value
+            key_in_which_image_url_is_stored.value
         )  # Getting the corresponding url for the animal type using
         # the Enum which stores the key.
         return url_of_image
 
+    def get_fact_about_the_animal(self, animal: ImageType) -> Union[str, None]:
+        """
+        This method gets a random factual information about the animal.
+
+        Returns:
+            Optional[str]: The fact about the animal.
+        """
+        response = requests.get(self.animal_category_dict.get(animal.name).value)
+        if response.status_code != 200:
+            self.logger.error(
+                f"Error occurred while fetching a fact about {animal.name}, status code: {response.status_code}"
+            )
+            return None
+        data: dict = response.json()
+        key_in_which_fact_is_stored = self.json_response_key_containing_fact_dict.get(
+            animal.name
+        )
+        fact = data.get(key_in_which_fact_is_stored.value)
+        return fact
+
     @staticmethod
-    def save_image_from_url(url_of_image: str, path: str):
+    def save_image_from_url(url_of_image: str, directory: str):
         """
         This method takes an image url, fetches it, and saves it to the specified path.
 
@@ -74,10 +110,10 @@ class Client:
         ----------
         url_of_image : str
             The image to be saved in BytesIO format.
-        path : str
+        directory : str
             The path to save the image to.
         """
-        path = pathlib.Path(path)
+        path: Path = Path(directory)
         if not path.is_dir():
             raise PathNotFound(f"{path} is not a directory.")
         response = requests.get(url_of_image)
@@ -87,16 +123,16 @@ class Client:
             raise InvalidImage(f"Exception occurred while opening image: {e}")
         image.save(
             f"{path}/image{random.randrange(1, 999)}.{image.format.lower()}",
-            format=image.format.lower(),
+            format=str(image.format).lower(),
         )
 
-    def download(self, animal: str, amount: int, path: str):
+    def download(self, animal: str, amount: int, directory: str):
         """
         This method downloads the image from the url and saves it to the path.
 
         Args:
             animal (str): The type of animal image to download.
-            path (str): The path to download the images to.
+            directory (str): The path to download the images to.
             amount (int): The amount of images to download.
         """
         try:
@@ -109,7 +145,9 @@ class Client:
             sys.exit(1)
 
         for i in range(amount):
-            data = self.get_image_from_url(url=image_url.value, animal=image_url)
+            data = self.get_image_url_of_the_animal(
+                url=image_url.value, animal=image_url
+            )
             self.__inner_url = data
             with alive_bar(
                 1,
@@ -117,7 +155,9 @@ class Client:
                 title=f"{self.bold_color}{Fore.LIGHTGREEN_EX}Downloading {i + 1}. {Fore.BLUE}{self.__inner_url}",
             ) as bar:
                 try:
-                    self.save_image_from_url(url_of_image=self.__inner_url, path=path)
+                    self.save_image_from_url(
+                        url_of_image=self.__inner_url, directory=directory
+                    )
                     bar()
                 except InvalidImage:
                     self.logger.error(
@@ -125,5 +165,5 @@ class Client:
                     )
                     continue
                 except PathNotFound:
-                    self.logger.error(f"Failed to save image to {path}.")
+                    self.logger.error(f"Failed to save image to {directory}.")
                     sys.exit(1)
