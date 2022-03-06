@@ -9,12 +9,12 @@ import pyfiglet
 import questionary
 from colorama import Fore, Style
 
-from .downloader import Client
+from catto.core.downloader import Client
 
 
 class Controller:
     """
-    This main class is responsible for the CLI interface.
+    This class is responsible for the interactive mode of the program.
     """
 
     def __init__(self):
@@ -36,13 +36,16 @@ class Controller:
             if bold:
                 print(f"{self.bold_color}{color}{char}", end="", flush=True)
                 time.sleep(speed)
+                if ", " in char:
+                    time.sleep(0.03)
             else:
                 print(f"{color}{char}", end="", flush=True)
                 time.sleep(speed)
-        print("\n", end="", flush=True)
+                if ", " in char:
+                    time.sleep(0.03)
+        print("\n\n", end="", flush=True)
 
-    @staticmethod
-    def ask_for_animal_choice():
+    def ask_for_animal_choice(self) -> str:
         """
         This method asks the user for the amount of images to download.
 
@@ -51,7 +54,7 @@ class Controller:
         """
         user_choice = questionary.select(
             "Select the category of animal...",
-            choices=["cats", "dogs", "foxes", "birds"],
+            choices=list(self.client.animal_category_dict.keys()),
         ).ask()
         return user_choice
 
@@ -62,6 +65,14 @@ class Controller:
         figlet_text = pyfiglet.figlet_format("Catto", font="slant")
         self.typewriter(figlet_text, speed=0.01, color=Fore.YELLOW, bold=True)
         return
+
+    def get_random_fact_about_the_selected_animal(self, animal: str) -> str:
+        """
+        This method prints the logo of the application.
+        """
+        animal_type = self.client.animal_category_dict[animal]
+        fact = self.client.get_fact_about_the_animal(animal_type)
+        return fact
 
     def ask_for_amount_of_images(self) -> int:
         """
@@ -133,15 +144,15 @@ class Controller:
 
     def interface(self):
         """
-        This method is the main asyncrhonous function that run catto in an interactive mode.
+        This method is the main function that run catto in an interactive mode.
         """
         self.print_logo()
         name = self.ask_for_username()
-        self.typewriter(text=f"Hello! {name} ", speed=0.05, color=Fore.BLUE, bold=True)
+        self.typewriter(text=f"Hello, {name}! ", speed=0.05, color=Fore.BLUE, bold=True)
         time.sleep(1)
         self.typewriter(
             text=f"This is a simple program written in python "
-            f"that downloads cute animals of your choice from the internet.",
+            f"that downloads random cute animals images of your choice from the internet.",
             speed=0.05,
             color=Fore.BLUE,
             bold=True,
@@ -161,6 +172,9 @@ class Controller:
             color=Fore.CYAN,
             bold=True,
         )
+        fact = self.get_random_fact_about_the_selected_animal(user_choice)
+        print(f"{self.bold_color}{Fore.CYAN}A fun fact about {user_choice}!\n{Fore.GREEN}{fact} {Style.RESET_ALL}")
+        time.sleep(1)
         self.typewriter(
             text="Thank you for using Catto!", speed=0.05, color=Fore.BLUE, bold=True
         )
@@ -168,8 +182,7 @@ class Controller:
 
     def start_interactive_mode(self):
         """
-        This method starts :meth:`interface` and runs it in an asynchronous loop. If the program is running on linux,
-        it uses uvloop to the main asynchronous event loop.
+        This method starts :meth:`interface`.
         """
         try:
             self.interface()
