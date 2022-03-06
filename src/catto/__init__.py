@@ -1,8 +1,8 @@
 import click
 from colorama import Fore
 
-from .core.downloader import Client
-from .core.interactive import Controller
+from catto.core.downloader import Client
+from catto.core.interactive import Controller
 
 controller = Controller()
 client = Client()
@@ -10,7 +10,7 @@ client = Client()
 
 @click.group(
     name="catto",
-    help="Catto is a simple tool that downloads cute animal images from the internet.",
+    help="Catto is a simple tool that downloads random cute animal images of your choice from the internet.",
 )
 def main_command_interface():
     """
@@ -20,11 +20,13 @@ def main_command_interface():
     main_command_interface.add_command(interactive_cli)
 
 
-@main_command_interface.command(name="download", help="Downloads cute animal images from the internet.")
+@main_command_interface.command(
+    name="download", help="Download cute animal images from the internet."
+)
 @click.option(
     "--category",
-    help=f"Choose between different animals categories to download images from. Categories are: "
-         f"{', '.join(list(client.animal_category_dict.keys()))}. Default is 'cats'.",
+    help=f"Choose between different animals categories to download images from.\nCategories are: "
+    f"{', '.join(list(client.animal_category_dict.keys()))}. Default is 'cats'.",
     default="cats",
 )
 @click.option(
@@ -59,7 +61,9 @@ def catto_cli(category, amount, path):
     )
 
 
-@main_command_interface.command("interactive", help="Run catto in interactive mode. Try it !")
+@main_command_interface.command(
+    "interactive", help="Run catto in interactive mode. Try it and see!"
+)
 def interactive_cli():
     controller.start_interactive_mode()
 
