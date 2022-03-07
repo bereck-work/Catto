@@ -9,8 +9,9 @@ import requests
 from alive_progress import alive_bar
 from colorama import Fore
 from PIL import Image
+from PIL.Image import Image as PILImage
 
-from catto.utils.enums import ImageType, KeyResponseImage, KeyResponseFact
+from catto.utils.enums import ImageType, KeyResponseFact, KeyResponseImage
 from catto.utils.exceptions import InvalidImage, PathNotFound
 
 
@@ -22,6 +23,7 @@ class Client:
     def __init__(self):
         self.logger = loguru.logger
         self.bold_color = "\033[1m"
+        self.session = requests.Session()
         self.animal_category_dict = {
             "cats": ImageType.cats,
             "dogs": ImageType.dogs,
@@ -49,9 +51,7 @@ class Client:
         }
         self.__inner_url: Optional[str] = None
 
-    def get_image_url_of_the_animal(
-        self, url: str, animal: ImageType
-    ) -> Union[str, None]:
+    def get_image_url_of_the_animal(self, url: str, animal: ImageType) -> Union[str, None]:
         """
         This method fetches and returns the image url from the API for the specified animal category.
 
@@ -59,16 +59,14 @@ class Client:
             Optional[str]: The url of the image.
         """
 
-        response = requests.get(url)
+        response = self.session.get(url)
         if response.status_code != 200:
             self.logger.error(
                 f"Error occurred while fetching image url from {url}, status code: {response.status_code}"
             )
             return None
         data: dict = response.json()
-        key_in_which_image_url_is_stored = (
-            self.json_response_key_containing_image_url_dict.get(animal.name)
-        )
+        key_in_which_image_url_is_stored = self.json_response_key_containing_image_url_dict.get(animal.name)
         # This is a nifty way to get the image url from the json response. All I am doing is that I have an Enum
         # of the keys in the json response for each url for each animal category, and I am getting the value of
         # Enum, which basically stores the key, for example, https://some-random-api.ml/animal/cat, If you make a GET
@@ -88,42 +86,37 @@ class Client:
         Returns:
             Optional[str]: The fact about the animal.
         """
-        response = requests.get(self.animal_category_dict.get(animal.name).value)
+        response = self.session.get(self.animal_category_dict.get(animal.name).value)
         if response.status_code != 200:
             self.logger.error(
                 f"Error occurred while fetching a fact about {animal.name}, status code: {response.status_code}"
             )
             return None
         data: dict = response.json()
-        key_in_which_fact_is_stored = self.json_response_key_containing_fact_dict.get(
-            animal.name
-        )
+        key_in_which_fact_is_stored: KeyResponseFact = self.json_response_key_containing_fact_dict.get(animal.name)
         fact = data.get(key_in_which_fact_is_stored.value)
         return fact
 
-    @staticmethod
-    def save_image_from_url(url_of_image: str, directory: str):
+    def save_image_from_url(self, url_of_image: str, directory: str):
         """
         This method takes an image url, fetches it, and saves it to the specified path.
 
-        Parameters
-        ----------
-        url_of_image : str
-            The image to be saved in BytesIO format.
-        directory : str
-            The path to save the image to.
+        Args:
+            url_of_image (str): The url of the image.
+            directory (str): The directory where the image is to be saved.
+
         """
         path: Path = Path(directory)
         if not path.is_dir():
             raise PathNotFound(f"{path} is not a directory.")
-        response = requests.get(url_of_image)
+        response = self.session.get(url_of_image)
         try:
-            image = Image.open(BytesIO(response.content))
+            image: PILImage = Image.open(BytesIO(response.content))
         except Exception as e:
             raise InvalidImage(f"Exception occurred while opening image: {e}")
         image.save(
             f"{path}/image{random.randrange(1, 999)}.{image.format.lower()}",
-            format=str(image.format).lower(),
+            format=image.format.lower(),
         )
 
     def download(self, animal: str, amount: int, directory: str):
@@ -145,9 +138,7 @@ class Client:
             sys.exit(1)
 
         for i in range(amount):
-            data = self.get_image_url_of_the_animal(
-                url=image_url.value, animal=image_url
-            )
+            data = self.get_image_url_of_the_animal(url=image_url.value, animal=image_url)
             self.__inner_url = data
             with alive_bar(
                 1,
@@ -155,14 +146,10 @@ class Client:
                 title=f"{self.bold_color}{Fore.LIGHTGREEN_EX}Downloading {i + 1}. {Fore.BLUE}{self.__inner_url}",
             ) as bar:
                 try:
-                    self.save_image_from_url(
-                        url_of_image=self.__inner_url, directory=directory
-                    )
+                    self.save_image_from_url(url_of_image=self.__inner_url, directory=directory)
                     bar()
                 except InvalidImage:
-                    self.logger.error(
-                        f"Failed to load image from {self.__inner_url}, skipping..."
-                    )
+                    self.logger.error(f"Failed to load image from {self.__inner_url}, skipping...")
                     continue
                 except PathNotFound:
                     self.logger.error(f"Failed to save image to {directory}.")
