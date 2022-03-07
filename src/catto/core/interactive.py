@@ -85,9 +85,7 @@ class Controller:
             "The amount of images you want to download?",
         ).ask()
         if not user_choice.isdigit():
-            print(
-                f"{self.bold_color}{Fore.RED} Please provide a valid integer. {Style.RESET_ALL}"
-            )
+            print(f"{self.bold_color}{Fore.RED} Please provide a valid integer. {Style.RESET_ALL}")
             return self.ask_for_amount_of_images()
         return int(user_choice)
 
@@ -101,13 +99,10 @@ class Controller:
         parent_path = pathlib.Path(os.getcwd()).name
         path = questionary.path(
             f"The path to save the images?",
-            only_directories=True,
-            default=f"./{parent_path}",
+            only_directories=True
         ).ask()
         if not pathlib.Path(path).is_dir():
-            print(
-                f"{self.bold_color}{Fore.RED} Please provide a valid directory. {Style.RESET_ALL}"
-            )
+            print(f"{self.bold_color}{Fore.RED} Please provide a valid directory. {Style.RESET_ALL}")
             return self.ask_for_path()
         if not os.access(path, mode=os.W_OK | os.X_OK):
             print(
@@ -118,15 +113,20 @@ class Controller:
         return path
 
     @staticmethod
-    def ask_for_confirmation() -> bool:
+    def ask_for_confirmation(category: str, amount: int, directory: str) -> bool:
         """
         This method asks the user for confirmation for downloading the images.
+
+        Args:
+            category (str): The category of the animal.
+            amount (int): The amount of images to be downloaded.
+            directory (str): The path to save the images.
 
         Returns:
             confirmation (bool): The user's confirmation.
         """
         confirmation = questionary.confirm(
-            "Are you sure you want to download these images?"
+            f"Are you sure you want to download {amount } of {category} images to {directory}?",
         ).ask()
         return confirmation
 
@@ -148,6 +148,10 @@ class Controller:
         """
         self.print_logo()
         name = self.ask_for_username()
+        if name is None:
+            self.logger.error("The user did not provide a name.")
+            return
+
         self.typewriter(text=f"Hello, {name}! ", speed=0.05, color=Fore.BLUE, bold=True)
         time.sleep(1)
         self.typewriter(
@@ -160,10 +164,12 @@ class Controller:
         user_choice = self.ask_for_animal_choice()
         amount = self.ask_for_amount_of_images()
         path = self.ask_for_path()
-        user_confirm = self.ask_for_confirmation()
+        user_confirm = self.ask_for_confirmation(category=user_choice, amount=amount, directory=path)
+
         if not user_confirm:
             print(f"{self.bold_color}{Fore.RED} Download cancelled. {Style.RESET_ALL}")
             return
+
         self.typewriter(text="Downloading...", speed=0.05, color=Fore.BLUE, bold=True)
         self.client.download(user_choice, amount, path)
         self.typewriter(
@@ -175,9 +181,7 @@ class Controller:
         fact = self.get_random_fact_about_the_selected_animal(user_choice)
         print(f"{self.bold_color}{Fore.CYAN}A fun fact about {user_choice}!\n{Fore.GREEN}{fact} {Style.RESET_ALL}")
         time.sleep(1)
-        self.typewriter(
-            text="Thank you for using Catto!", speed=0.05, color=Fore.BLUE, bold=True
-        )
+        self.typewriter(text="Thank you for using Catto!", speed=0.05, color=Fore.BLUE, bold=True)
         self.typewriter(text="Have a nice day!", speed=0.05, color=Fore.BLUE, bold=True)
 
     def start_interactive_mode(self):
