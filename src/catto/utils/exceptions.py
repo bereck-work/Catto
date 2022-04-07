@@ -1,12 +1,4 @@
-class BaseError(Exception):
-    """
-    Base exception class for all Catto exceptions.
-    """
-
-    pass
-
-
-class PathNotFound(BaseError):
+class PathNotFound(BaseException):
     """
     Raised when a path is not found.
     """
@@ -14,9 +6,18 @@ class PathNotFound(BaseError):
     pass
 
 
-class InvalidImage(BaseError):
+class InvalidImage(BaseException):
     """
     Raised when the URL is not an image.
     """
 
     pass
+
+
+class AnimalFactNotFound(BaseException):
+    """
+    Raised when an animal fact is not found.
+    """
+
+    pass
+
