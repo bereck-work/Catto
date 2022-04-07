@@ -88,5 +88,5 @@ def interactive_cli(typewriter: bool):
         sys.exit(0)
 
 
-if __name__ == "catto":
+if __name__ == "__main__":
     main_command_interface()
