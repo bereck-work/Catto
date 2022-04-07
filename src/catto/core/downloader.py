@@ -1,8 +1,7 @@
-import random
 import sys
 from io import BytesIO
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional
 
 import loguru
 import requests
@@ -10,9 +9,9 @@ from alive_progress import alive_bar
 from colorama import Fore
 from PIL import Image
 from PIL.Image import Image as PILImage
-
-from catto.utils.enums import ImageType, KeyResponseFact, KeyResponseImage
-from catto.utils.exceptions import InvalidImage, PathNotFound
+import secrets
+from ..utils.enums import ImageType, KeyResponseFact, KeyResponseImage
+from ..utils.exceptions import InvalidImage, PathNotFound
 
 
 class Client:
@@ -31,7 +30,7 @@ class Client:
             "birds": ImageType.birds,
             "panda": ImageType.panda,
             "red_panda": ImageType.red_panda,
-        }
+        }  # This is a dictionary that stores the animal category and the corresponding API endpoint.
 
         self.json_response_key_containing_image_url_dict = {
             "cats": KeyResponseImage.cats,
@@ -40,7 +39,9 @@ class Client:
             "birds": KeyResponseImage.birds,
             "panda": KeyResponseImage.panda,
             "red_panda": KeyResponseImage.red_panda,
-        }
+        }  # This is a dictionary that stores the animal category and the corresponding key in the json response, that
+        # contains the image url.
+
         self.json_response_key_containing_fact_dict = {
             "cats": KeyResponseFact.cats,
             "dogs": KeyResponseFact.dogs,
@@ -48,10 +49,11 @@ class Client:
             "birds": KeyResponseFact.birds,
             "panda": KeyResponseFact.panda,
             "red_panda": KeyResponseFact.red_panda,
-        }
+        }  # This is a dictionary that stores the animal category and the corresponding key in the json response, that
+        # contains the fact.
         self.__inner_url: Optional[str] = None
 
-    def get_image_url_of_the_animal(self, url: str, animal: ImageType) -> Union[str, None]:
+    def get_image_url_of_the_animal(self, url: str, animal: ImageType) -> Optional[str]:
         """
         This method fetches and returns the image url from the API for the specified animal category.
 
@@ -71,7 +73,15 @@ class Client:
         # of the keys in the json response for each url for each animal category, and I am getting the value of
         # Enum, which basically stores the key, for example, https://some-random-api.ml/animal/cat, If you make a GET
         # request to the API, the API returns a json response, the image url is stored in the key named as 'image' and
-        # KeyResponseImage.cats.value returns 'image' and then I get the image url for the cute cat image.
+        # KeyResponseImage.cats.value returns 'image' and then I index the json response with that key.
+        # For example, if I have a json response like this:
+        # {
+        #     "image": "https://some-random-api.ml/animal/cat/image.jpg",
+        #     "fact": "https://some-random-api.ml/animal/cat/fact.txt"
+        # }
+        # Then I can get the image url by doing:
+        # data[KeyResponseImage.cats.value]
+        # This is a lazt way to get the image url from the json response, incase the API changes.
         # This is just a way to avoid unnecessary if-else statements.
         url_of_image = data.get(
             key_in_which_image_url_is_stored.value
@@ -79,7 +89,7 @@ class Client:
         # the Enum which stores the key.
         return url_of_image
 
-    def get_fact_about_the_animal(self, animal: ImageType) -> Union[str, None]:
+    def get_fact_about_the_animal(self, animal: ImageType) -> Optional[str]:
         """
         This method gets a random factual information about the animal.
 
@@ -97,7 +107,7 @@ class Client:
         fact = data.get(key_in_which_fact_is_stored.value)
         return fact
 
-    def save_image_from_url(self, url_of_image: str, directory: str):
+    def save_image_from_url(self, url_of_image: str, directory: str) -> None:
         """
         This method takes an image url, fetches it, and saves it to the specified path.
 
@@ -105,6 +115,9 @@ class Client:
             url_of_image (str): The url of the image.
             directory (str): The directory where the image is to be saved.
 
+        Raises:
+            PathNotFound: If the directory does not exist.
+            InvalidImage: If the image is not a valid image.
         """
         path: Path = Path(directory)
         if not path.is_dir():
@@ -115,11 +128,12 @@ class Client:
         except Exception as e:
             raise InvalidImage(f"Exception occurred while opening image: {e}")
         image.save(
-            f"{path}/image{random.randrange(1, 999)}.{image.format.lower()}",
+            f"{path}/image-{secrets.token_hex(4)}.{image.format.lower()}",
             format=image.format.lower(),
         )
+        return
 
-    def download(self, animal: str, amount: int, directory: str):
+    def download(self, animal: str, amount: int, directory: str) -> None:
         """
         This method downloads the image from the url and saves it to the path.
 
