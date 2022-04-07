@@ -1,8 +1,10 @@
-import click
-from colorama import Fore
+import sys
 
-from catto.core.downloader import Client
-from catto.core.interactive import Controller
+import click
+from colorama import Fore, Style
+
+from .core.downloader import Client
+from .core.interactive import Controller
 
 controller = Controller()
 client = Client()
@@ -20,6 +22,7 @@ def main_command_interface():
     """
     main_command_interface.add_command(catto_cli)
     main_command_interface.add_command(interactive_cli)
+    return
 
 
 @main_command_interface.command(name="download", help="Download cute animal images from the internet.")
@@ -30,29 +33,60 @@ def main_command_interface():
     default="cats",
 )
 @click.option("--amount", help="Amount of images to download.", metavar="<int>", default=1)
-@click.option("--path", help="Output directory to save the images to.")
-def catto_cli(category: str, amount: int, path: str):
-    controller.typewriter(
+@click.option("--path", help="Output directory to save the images to.", metavar="<path>", default=click.Path())
+@click.option(
+    "--typewriter",
+    help="Enable or disable the typewriter effect. Default is set to false.",
+    metavar="<bool>",
+    default=False,
+)
+def catto_cli(category: str, amount: int, path: str, typewriter: bool):
+    """
+    This function is the command "catto --download" for manually downloading images from the internet.
+    """
+    controller.interactive_print(
         f"Downloading {amount} images of {category} to {path}....",
         color=Fore.BLUE,
         bold=True,
         speed=0.05,
+        typewriter=typewriter,
     )
     client.download(animal=category, amount=amount, directory=path)
-    controller.typewriter(
+    controller.interactive_print(
         text=f"Downloaded {amount} images of {category} to {path} successfully!",
         speed=0.05,
         color=Fore.GREEN,
         bold=True,
+        typewriter=typewriter,
     )
-    controller.typewriter(text="Thank you for using Catto!", speed=0.05, color=Fore.BLUE, bold=True)
-    controller.typewriter(text="Have a nice day!", speed=0.05, color=Fore.BLUE, bold=True)
+    controller.interactive_print(
+        text="Thank you for using Catto!", speed=0.05, color=Fore.BLUE, bold=True, typewriter=typewriter
+    )
+    controller.interactive_print(text="Have a nice day!", speed=0.05, color=Fore.BLUE, bold=True, typewriter=typewriter)
+    return
 
 
 @main_command_interface.command("interactive", help="Run catto in interactive mode. Try it and see!")
-def interactive_cli():
-    controller.start_interactive_mode()
+@click.option(
+    "--typewriter",
+    help="Enable or disable the typewriter effect. Default is set to false.",
+    metavar="<bool>",
+    default=False,
+)
+def interactive_cli(typewriter: bool):
+    """
+    This function is the command "catto --interactive" for running catto in interactive mode.
+    """
+    try:
+        controller.interface(typewriter_mode=typewriter)
+    except KeyboardInterrupt:
+        print(f"{controller.bold_color}{Fore.RED}[*] Exiting... {Style.RESET_ALL}")
+        sys.exit(0)
+
+    except SystemExit:
+        print(f"{controller.bold_color}{Fore.RED}[*] Exiting... {Style.RESET_ALL}")
+        sys.exit(0)
 
 
-if __name__ == "__main__":
+if __name__ == "catto":
     main_command_interface()
