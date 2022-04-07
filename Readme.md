@@ -11,7 +11,6 @@ or if you are using poetry:
 ```bash
 poetry install
 ```
-I haven't figured how to install catto as a standalone package yet.
 
 ## Usage
 Catto has two modes of usage:
@@ -33,6 +32,27 @@ To know more about catto run the following command:
 ```bash
 python -m catto --help
 ```
+
+## Typewriter effect
+Typewriter effect prints the text in the terminal with a typewriter effect.
+Catto allows you to disable / enable the typewriter effect at any time.
+
+For example, if you want to disable the typewriter effect, you can use the following command:
+```bash
+python3 -m catto download --category cats --amount 3 --path ./images --typewriter False
+```
+
+Similarly, if you want to enable the typewriter effect, you can use the following command:
+```bash
+python3 -m catto download --category cats --amount 3 --path ./images --typewriter True
+```
+
+Typewriter effect can be enabled and disabled in interactive mode too.
+```bash
+python3 -m catto interactive --typewriter False
+```
+
+Typewriter mode is enabled by default.
 
 ## Note
 The Readme.md file is not complete yet. I will add more content as I go.
