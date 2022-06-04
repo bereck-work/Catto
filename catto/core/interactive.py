@@ -181,7 +181,7 @@ class Controller:
             text=f"Downloaded '{amount}' images of '{animal.name}' to directory '{path.name}' successfully!",
             color="cyan",
             bold=True,
-            specific_words_to_color={f"{animal.name}": "green", f"{amount}": "green", f"{path.name}": "green"},
+            specific_words_to_color={animal.name: "green", str(amount): "green", path.name: "green"},
         )
         try:
             fact = self.get_random_fact_about_the_selected_animal(animal)
@@ -191,7 +191,7 @@ class Controller:
                 bold=True,
                 end_with_newline=True,
                 flush=True,
-                specific_words_to_color={f"{animal.name}": "greem", f"{fact}": "yellow"},
+                specific_words_to_color={animal.name: "green", fact: "yellow"},
             )
             time.sleep(1)
         except AnimalFactNotFound:
