@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "catto"
-version = "1.0.2"
+version = "1.0.3"
 authors = ["KortaPo"]
 description = "A command line tool for downloading random cute animal images."
 license = "MIT"
