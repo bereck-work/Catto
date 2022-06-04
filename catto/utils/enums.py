@@ -11,6 +11,7 @@ class EnumWithNoAliasing(Enum):
     """
     This class subclasses the :class:`Enum` class and overrides the __getattribute__ method to avoid
     the deduplication check. This is a workaround for labels that get aliased if the values are the same.
+    Taken from https://stackoverflow.com/a/58273746 pretty cool.
     """
 
     def __init_subclass__(cls, *kargs, **kwargs):
