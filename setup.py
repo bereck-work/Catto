@@ -11,7 +11,7 @@ sys.path.insert(0, str(CURRENT_DIR))  # for setuptools.build_meta
 
 setup(
     name="catto",
-    version="1.0.2",
+    version="1.0.3",
     description="A simple command line tool that downloads cute animals images of your choice.",
     author="KortaPo",
     author_email="bereckobrian",
@@ -21,14 +21,14 @@ setup(
     include_package_data=True,
     python_requires=">=3.8",
     install_requires=[
-        "click",
+        "typer",
+        "rich",
         "loguru",
         "requests",
         "questionary",
         "pyfiglet",
         "colorama",
         "pillow",
-        "alive-progress",
     ],
     classifiers=[
         "Development Status :: 5 - Production/Stable",
@@ -44,5 +44,5 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Software Development :: Quality Assurance",
     ],
-    entry_points={"console_scripts": ["catto = catto:main_command_interface"]},
+    entry_points={"console_scripts": ["catto = catto:app"]},
 )
