@@ -11,7 +11,7 @@ sys.path.insert(0, str(CURRENT_DIR))  # for setuptools.build_meta
 
 setup(
     name="catto",
-    version="1.0.3",
+    version="1.0.4",
     description="A simple command line tool that downloads cute animals images of your choice.",
     author="KortaPo",
     author_email="bereckobrian",
