@@ -1,8 +1,9 @@
 import random
-import typing
-from typing import Optional
+from typing import Union, Dict
 
 from rich.console import Console
+
+from .enums import ColorEnum
 
 __all__ = (
     "interactive_print",
@@ -12,11 +13,11 @@ __all__ = (
 
 def interactive_print(
     text: str,
-    color: str,
+    color: ColorEnum,
     flush: bool = False,
     bold: bool = False,
     end_with_newline: bool = False,
-    specific_words_to_color: dict = None,
+    specific_words_to_color: Dict[str, ColorEnum] = None,
 ) -> None:
     """
     This function pretty-prints text in the terminal, it can print text in a typewriter fashion,
@@ -24,28 +25,44 @@ def interactive_print(
 
     Parameters:
         text (str): This parameter takes the text that needs to be printed in the terminal.
-        color (str): This parameter takes the color of the text that needs to be printed. ASCII colors are supported
-                     only. It is recommended to use the colors from the colorama module.
+
+        color (ColorEnum): This parameter takes the color of the text that needs to be printed.
+
         flush (bool): This parameter takes a boolean value, if set to True, the text will be printed immediately.
-        bold (bool): This parameter takes a boolean which sets the text to be bold, Default: False.
+
+        bold (bool): This parameter takes a boolean which sets the text to be displayed as bold. Default: False.
+
         end_with_newline (bool): This parameter takes a boolean which sets the text to be printed at the end of the
                                 line with a newline character. Default: False.
-        specific_words_to_color (dict): This parameter takes a dictionary of words to color, the keys are the words
-                                        and the values are the colors.
+
+        specific_words_to_color (typing.Dict[str, ColorEnum]): This parameter takes a dictionary of specifc words to be
+                                                               seperately colored, the keys are the words and
+                                                               the values are the colors.
     """
     console = Console()
+
     if bold and specific_words_to_color is not None:
         for word, color in specific_words_to_color.items():
-            text = text.replace(word, f"[{color}]{word}")
+            text = text.replace(word, f"[{color.value}]{word}")
 
-        console.print(f"[bold][{color}]{text}", new_line_start=end_with_newline)
+        console.print(
+            f"[bold][{color.value}]{text}", new_line_start=end_with_newline, end="\n" if end_with_newline else ""
+        )
         print(flush=flush)
+        return
+
     if bold and specific_words_to_color is None:
-        console.print(f"[bold][{color}]{text}", new_line_start=end_with_newline)
+        console.print(
+            f"[bold][{color.value}]{text}", new_line_start=end_with_newline, end="\n" if end_with_newline else ""
+        )
         print(flush=flush)
+        return
+
     if not bold:
-        console.print(f"[{color}]{text}", new_line_start=end_with_newline)
+        console.print(f"[{color.value}]{text}", new_line_start=end_with_newline, end="\n" if end_with_newline else "")
         print(flush=flush)
+        return
+
     return
 
 
@@ -59,57 +76,59 @@ class ExponentialBackoff:
     """
 
     def __init__(
-        self, *, base: typing.Union[float, int] = 1, maximum_time: float = 30.0, maximum_tries: Optional[int] = 5
+        self,
+        *,
+        base: Union[float, int] = 1,
+        maximum_time: Union[int, float] = 30.0,
+        maximum_tries: Union[int, float, None] = 5,
     ):
         """
-        Parameters
-        ----------
-        base: int
-            The base time to multiply exponentially. Defaults to 1.
-        maximum_time: float
-            The maximum wait time. Defaults to 30.0
-        maximum_tries: Optional[int]
-            The amount of times to backoff before resetting. Defaults to 5. If set to None,
-            backoff will run indefinitely.
+        Parameters:
+            base (typing.Union[int, float]): The base time to multiply exponentially. Default: 1.
+            maximum_time (Union[int, float]): This parameter takes the  maximum time in seconds to wait. Defaults to 30.0
+            maximum_tries (Union[int, float, None]): This parameter takes the amount of times to backoff before resetting.
+                                                     If set to None, backoff will run indefinitely. Default: 5.
         """
-        self._base = base
-        self._maximum_time = maximum_time
-        self._maximum_tries = maximum_tries
-        self._retries: int = 1
+        self.__base = base
+        self.__maximum_time = maximum_time
+        self.__maximum_tries = maximum_tries
+        self.__retries: int = 1
+        self.__inner_random = random.Random()  # A custom random object so that we can seed it.
+        self.__inner_random.seed()
 
-        rand = random.Random()
-        rand.seed()
-
-        self._rand = rand.uniform
-
-        self._last_wait: float = 0
+        self.__last_wait: float = 0
 
     def calculate(self) -> float:
         """
-        This method calculates the next wait time.
+        This method calculates the time to wait. It returns the time to wait in seconds.
 
-        Returns
-        -------
-        float
-            The next wait time.
+        Returns:
+            (float): The next wait time.
         """
-        exponent = min((self._retries**2), self._maximum_time)
-        wait = self._rand(0, (self._base * 2) * exponent)
+        exponent = min((self.__retries**2), self.__maximum_time)
+        wait = self.__inner_random.uniform(0, (self.__base * 2) * exponent)
 
-        if wait <= self._last_wait:
-            wait = self._last_wait * 2
+        if wait <= self.__last_wait:
+            wait = self.__last_wait * 2
 
-        self._last_wait = wait
+        self.__last_wait = wait
 
-        if wait > self._maximum_time:
-            wait = self._maximum_time
-            self._retries = 0
-            self._last_wait = 0
+        if wait > self.__maximum_time:
+            wait = self.__maximum_time
+            self.__reset()
 
-        if self._maximum_tries and self._retries >= self._maximum_tries:
-            self._retries = 0
-            self._last_wait = 0
+        if self.__maximum_tries and self.__retries >= self.__maximum_tries:
+            self.__reset()
 
-        self._retries += 1
+        self.__retries += 1
 
         return wait
+
+    def __reset(self) -> None:
+        """
+        This method resets the exponential backoff. It sets the retries to 0 and the last time wait to 0.
+        This method is called when the maximum tries is reached, and should not be called manually.
+        """
+        self.__retries = 0
+        self.__last_wait = 0
+        return
