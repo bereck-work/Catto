@@ -8,9 +8,10 @@ from typing import Optional
 import loguru
 import pyfiglet
 import questionary
+from colorama import Fore
 from rich.console import Console
 from ..core.downloader import Client
-from ..utils import AnimalFactNotFound, AnimalAPIEndpointEnum
+from ..utils import AnimalFactNotFound, AnimalAPIEndpointEnum, ColorEnum
 from ..utils.helpers import interactive_print
 
 __all__ = ("Controller",)
@@ -27,48 +28,54 @@ class Controller:
         self.logger = loguru.logger
 
     @staticmethod
-    def print_logo() -> None:
+    def print_logo(typewriter_effect: bool = False) -> None:
         """
         This method prints the logo of the application.
         """
         figlet_text = pyfiglet.figlet_format("Catto", font="slant")
-        interactive_print(figlet_text, color="yellow", bold=True)
+        if typewriter_effect:
+            for i in figlet_text:
+                print(f"{Fore.YELLOW}{i}", end="", flush=True)
+                time.sleep(0.03)
+            return
+        interactive_print(figlet_text, color=ColorEnum.yellow, bold=True)
         return
 
-    def get_random_fact_about_the_selected_animal(self, animal: AnimalAPIEndpointEnum) -> Optional[str]:
+    def fetch_random_fact_about_the_selected_animal(self, animal: AnimalAPIEndpointEnum) -> Optional[str]:
         """
         This method returns a random fact about the animal that the user selected.
 
         Parameters:
-            animal (AnimalAPIEndpointEnum): The animal that the user selected.
+            animal (AnimalAPIEndpointEnum): This parameter takes animal that the user selected.
 
         Returns:
             fact (Optional[str]): The fact about the animal.
 
         Raises:
-            AnimalFactNotFound: If the animal does not have any facts or the API is not able to return any facts.
+            AnimalFactNotFound: If the API's json response does not contain a fact about the animal.
         """
-        animal_type = self.client.animal_category_dict[animal.name]
-        fact = self.client.get_fact_about_the_animal(animal_type)
+        animal_type = AnimalAPIEndpointEnum[animal.name]
+        fact = self.client.fetch_fact_about_the_animal(animal_type)
         if fact is None:
             raise AnimalFactNotFound()
         return fact
 
-    def ask_for_animal_choice(self) -> AnimalAPIEndpointEnum:
+    @staticmethod
+    def ask_for_animal_choice() -> AnimalAPIEndpointEnum:
         """
         This method asks the user for the amount of images to download.
 
         Returns:
-            animal_choice (str): The user's choice of animal.
+            animal_choice (str): The animal that the user selected.
         """
         user_choice: str = questionary.select(
-            "Select the category of animal to download: ", choices=list(self.client.animal_category_dict.keys())
+            "Select the category of animal to download: ", choices=[animal.name for animal in AnimalAPIEndpointEnum]
         ).ask()
-        return self.client.animal_category_dict[user_choice]
+        return AnimalAPIEndpointEnum[user_choice]
 
     def ask_for_amount_of_images(self) -> int:
         """
-        This method asks the user for the amount of images to download.
+        This method asks the user for the amount of images that they want to download.
 
         Returns:
             amount_of_images (int): The amount of images to download.
@@ -78,7 +85,7 @@ class Controller:
             default="1",
         ).ask()
         if not user_choice.isdigit():
-            interactive_print("Please provide a valid integer.", bold=True, color="red", end_with_newline=True)
+            interactive_print("Please provide a valid integer.", bold=True, color=ColorEnum.red, end_with_newline=True)
             return self.ask_for_amount_of_images()
         return int(user_choice)
 
@@ -97,7 +104,7 @@ class Controller:
 
         if not path.is_dir():
             interactive_print(
-                "Please provide a valid directory.", bold=True, end_with_newline=True, flush=True, color="red"
+                "Please provide a valid directory.", bold=True, end_with_newline=True, flush=True, color=ColorEnum.red
             )
             return self.ask_for_path()
 
@@ -106,7 +113,7 @@ class Controller:
                 f"I cannot download the images in directory '{path.absolute()}' due to insufficient permissions.",
                 bold=True,
                 end_with_newline=True,
-                color="red",
+                color=ColorEnum.red,
             )
             return self.ask_for_path()
 
@@ -150,15 +157,15 @@ class Controller:
         """
         This method is the main function that run catto in an interactive mode.
         """
-        self.print_logo()
+        self.print_logo(typewriter_effect=True)
         name = self.ask_for_username()
 
-        interactive_print(text=f"Hello, {name}.", color="blue", bold=True)
+        interactive_print(text=f"Hello, {name}.", color=ColorEnum.blue, bold=True)
         time.sleep(1)
         interactive_print(
             text=f"This is a simple program written in python that downloads random cute animals images of your choice "
             f"from the internet.",
-            color="blue",
+            color=ColorEnum.blue,
             bold=True,
             end_with_newline=True,
         )
@@ -170,7 +177,7 @@ class Controller:
         if not user_confirm:
             interactive_print(
                 text="Download has been cancelled by user. Exiting.",
-                color="red",
+                color=ColorEnum.red,
                 bold=True,
                 end_with_newline=True,
             )
@@ -179,19 +186,22 @@ class Controller:
         self.client.download(animal=animal, amount=amount, path=path)
         interactive_print(
             text=f"Downloaded '{amount}' images of '{animal.name}' to directory '{path.name}' successfully!",
-            color="cyan",
+            color=ColorEnum.cyan,
             bold=True,
-            specific_words_to_color={animal.name: "green", str(amount): "green", path.name: "green"},
+            specific_words_to_color={
+                animal.name: ColorEnum.green,
+                str(amount): ColorEnum.green,
+                path.name: ColorEnum.green,
+            },
         )
         try:
-            fact = self.get_random_fact_about_the_selected_animal(animal)
+            fact = self.fetch_random_fact_about_the_selected_animal(animal)
             interactive_print(
                 f"A fun fact about {animal.name}!:\n{fact}",
-                color="green",
+                color=ColorEnum.cyan,
                 bold=True,
                 end_with_newline=True,
                 flush=True,
-                specific_words_to_color={animal.name: "green", fact: "yellow"},
             )
             time.sleep(1)
         except AnimalFactNotFound:
