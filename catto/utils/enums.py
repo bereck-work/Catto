@@ -3,6 +3,8 @@ from enum import Enum
 
 __all__ = ("AnimalAPIEndpointEnum", "AnimalResponseEnum", "ColorEnum")
 
+from typing import Optional
+
 
 class AnimalAPIEndpointEnum(Enum):
     """
@@ -34,8 +36,8 @@ class ResponseInterface:
     """
 
     endpoint: AnimalAPIEndpointEnum
-    key_that_contains_image_url: str = None
-    key_that_contains_fact: str = None
+    key_that_contains_image_url: Optional[str] = None
+    key_that_contains_fact: Optional[str] = None
 
 
 class AnimalResponseEnum(Enum):
