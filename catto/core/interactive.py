@@ -38,7 +38,7 @@ class Controller:
                 print(f"{Fore.YELLOW}{i}", end="", flush=True)
                 time.sleep(0.03)
             return
-        interactive_print(figlet_text, color=ColorEnum.yellow, bold=True)
+        interactive_print(text=figlet_text, color=ColorEnum.yellow, bold=True)
         return
 
     def fetch_random_fact_about_the_selected_animal(self, animal: AnimalAPIEndpointEnum) -> Optional[str]:
