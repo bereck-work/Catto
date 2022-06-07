@@ -79,15 +79,16 @@ it will download your images. It has a fancy UI, and it is hard to explain throu
 ## Commands
 `Catto` has the following commands:
 
-* `catto help` - *Shows the help menu of catto.*
+* `catto help` - *This command shows the help menu of catto.*
 * `catto download` - *Simple and a fast way to use catto to download images of your choice.*
 * `catto interactive` - *Run catto in an interactive session.*
-* `catto version` - *Shows the current version of catto installed.*
+* `catto version` - *This command shows the current version of catto that is currently installed.*
 * `catto status` - *This command shows all the status of all the API endpoints used by catto to search for images.*
 * `catto show-all-animals` - *This command shows all the animal categories supported by catto currently.*
+* `catto logo` - *This command shows the logo of catto in an animated way.
 
 ## Note
-Currently, `catto` will download the images in `<selected-animal>-image-<random-hex-number>`
+Currently, `catto` will download the images in `<selected-animal>-image-<random-hex-number>` format.
 
 For example:
 `cats-image-cdf79775`.
