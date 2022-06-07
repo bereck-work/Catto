@@ -1,5 +1,5 @@
 import random
-from typing import Union, Dict
+from typing import Union, Dict, Optional
 
 from rich.console import Console
 
@@ -17,7 +17,7 @@ def interactive_print(
     flush: bool = False,
     bold: bool = False,
     end_with_newline: bool = False,
-    specific_words_to_color: Dict[str, ColorEnum] = None,
+    specific_words_to_color: Optional[Dict[str, ColorEnum]] = None,
 ) -> None:
     """
     This function pretty-prints text in the terminal, it can print text in a typewriter fashion,
