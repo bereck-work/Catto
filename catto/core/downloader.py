@@ -27,7 +27,7 @@ class Client:
 
     def __init__(self):
         self.logger = loguru.logger
-        self.version = "1.0.5"
+        self.version = "1.0.4"
         self.__backoff = ExponentialBackoff(base=0.05, maximum_tries=5)
         self.session = requests.Session()
         self.__inner_url: Optional[str] = None
