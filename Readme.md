@@ -64,7 +64,7 @@ Let's dissect the above command a bit more:
 This is a simple and fast version of using `catto`.
 
 <strong>Download Command Output</strong>
-<img src="./gallery/catto_download_output.png" width=450px></img>
+<img src="./catto-ouput/catto_download_output.png" width=450px></img>
 
 <strong>2.) Interactive</strong>
 ```bash
