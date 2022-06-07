@@ -23,9 +23,29 @@ black = "^22.1.0"
 pyright = "^1.1.227"
 isort = "^5.10.1"
 mypy = "^0.931"
+coverage = "^6.4.1"
+pytest = "^7.1.2"
+taskipy = "^1.10.2"
 
 [tool.black]
 line-length = 120
+
+[tool.pyright]
+typeCheckingMode = "strict"
+include = [
+    "catto",
+    "tests",
+]
+ignore = [
+    "setup.py",
+]
+
+[tool.isort]
+profile = "black"
+py_version = 38
+line_length = 100
+combine_as_imports = true
+filter_files = true
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
