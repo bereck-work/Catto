@@ -9,6 +9,7 @@ import loguru
 import requests
 from PIL import Image
 from PIL.Image import Image as PILImage
+from typing import Dict
 from rich.progress import track
 
 from ..utils.enums import AnimalAPIEndpointEnum, AnimalResponseEnum
@@ -26,7 +27,7 @@ class Client:
 
     def __init__(self):
         self.logger = loguru.logger
-        self.version = "1.0.4"
+        self.version = "1.0.5"
         self.__backoff = ExponentialBackoff(base=0.05, maximum_tries=5)
         self.session = requests.Session()
         self.__inner_url: Optional[str] = None
@@ -47,17 +48,11 @@ class Client:
             self.logger.error(
                 f"Error occurred while fetching image url for animal {animal.name} from  the API endpoint "
                 f"{AnimalAPIEndpointEnum[animal.name].value}, "
-                f"status code: {response.status_code}. This error can occur, if the API is down, "
-                f"you are not connected to internet or the API is not working properly."
+                f"status code: {response.status_code}. Reason: {response.reason}"
             )
             return
-        if response.status_code == 429:
-            self.logger.warning(
-                f"The API endpoint {AnimalAPIEndpointEnum[animal.name].value} has been rate limited. "
-                f"Please 'catto status' to check the status of the API."
-            )
 
-        data: dict = response.json()
+        data: Dict[str, str] = response.json()
         enum_data = AnimalResponseEnum[animal.name]
         # This is a nifty way to get the image url from the json response. All I am doing is that I have an Enum
         # of the keys in the json response for each url for each animal category, and I am getting the value of
@@ -97,15 +92,7 @@ class Client:
             self.logger.error(
                 f"Error occurred while fetching fact from API endpoint"
                 f"{AnimalAPIEndpointEnum[animal.name].value}, "
-                f"status code: {response.status_code}. This error can occur if the API is down, you are not connected "
-                f"to the internet or the API is not working properly."
-            )
-            return
-        if response.status_code == 429:
-            self.logger.warning(
-                f"The API endpoints has been rate "
-                f"limited. Please run the command 'catto status' in your terminal to check the status of all the API "
-                f"endpoints"
+                f"status code: {response.status_code}. Reason: {response.reason}"
             )
             return
         data: dict = response.json()
@@ -136,15 +123,7 @@ class Client:
         if response.status_code != 200:
             self.logger.error(
                 f"Error occurred while fetching the image from the image url: {url_of_image}, "
-                f"status code: {response.status_code}. This error can occur if the image url that was provided "
-                f"is invalid."
-            )
-            return
-        if response.status_code == 429:
-            self.logger.warning(
-                f"The API endpoints have been rate "
-                f"limited. Please run the command 'catto status' in your terminal to check the status of all the API "
-                f"endpoints"
+                f"status code: {response.status_code}. Reason: {response.reason}"
             )
             return
 
@@ -183,7 +162,7 @@ class Client:
             data = self.fetch_image_url_of_endpoint(animal=ImageEnum)
             self.__inner_url = data
             try:
-                self.save_image_from_url(data, path)
+                self.save_image_from_url(url_of_image=data, path=path)
 
             except InvalidImage:
                 self.logger.error(f"Image failed to load due to invalid image url: {self.__inner_url}, skipping image.")
@@ -193,8 +172,9 @@ class Client:
                 self.logger.error(f"Failed to save image to {path.name}.")
                 sys.exit(1)
 
-            for j in track(
-                range(amount), description=f"[bold][magenta]{i + 1}.) Downloading image: {self.__inner_url}"
+            for _ in track(
+                range(amount),
+                description=f"[bold][magenta]{i + 1}.) Downloading image: [bold][green]{self.__inner_url}",
             ):
                 time.sleep(self.__backoff.calculate())  # This is a simple ratelimit handler to avoid
                 # being banned from the API.
