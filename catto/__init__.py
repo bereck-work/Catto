@@ -1,3 +1,4 @@
+import sys
 from pathlib import Path
 
 import requests
@@ -87,7 +88,25 @@ def version_command() -> None:
     """
     This function is the command "catto --version" for printing the version of catto.
     """
-    interactive_print(f"Catto version: {client.version}", bold=True, color=ColorEnum.green)
+    entries = {
+        "Catto": f"v{client.version}",
+        "Python": f"v{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}-"
+        f"{sys.version_info.releaselevel}",
+        "requests": f"v{requests.__version__}",
+        "Typer": f"v{typer.__version__}",
+    }
+
+    table = Table(title="Version Table")
+
+    table.add_column("No.", style="cyan", no_wrap=True)
+    table.add_column("Package", style="magenta")
+    table.add_column("Version", justify="right", style=ColorEnum.green.value)
+
+    for key, value in entries.items():
+        i = key.index(key) + 1
+        table.add_row(f"{str(i)}.)", key, value)
+
+    controller.console.print(table)
     return
 
 
