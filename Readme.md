@@ -12,7 +12,7 @@ pip3 install git+https://github.com/KortaPo/Catto.git
 
 <strong>Poetry</strong>
 ```bash
-poetry add git+https://github.com/KortaPo/Catto.git
+poetry add git+https://github.com/KortaPo/Catto.git#main
 ```
 
 ## Installation through the repository
