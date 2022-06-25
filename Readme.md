@@ -57,11 +57,11 @@ The above command will download `3` cute and random images of `cats` ( based on 
 
 Let's dissect the above command a bit more:
 
-* `--category`: This parameter takes the specific type of animal's image you wish to download.
-* `--amount`: This parameter takes the amount of images of the specific animal that would be downloaded.
-* `--path`: This parameter takes the path to the directory, where `catto` will download the random images.
+* `--category`: This flag takes the specific type of animal's image you wish to download.
+* `--amount`: This flag takes the amount of images of the specific animal that would be downloaded.
+* `--path`: This flag takes the path to the directory, where `catto` will download the random images.
 
-This is a simple and fast version of using `catto`.
+This is a simple and fast method of using `catto`, if you wish not to use `catto` in interactive mode.
 
 <strong>Download Command Output</strong>
 <img src="./gallery/catto-output/catto_download_output.png" width=450px></img>
@@ -70,7 +70,7 @@ This is a simple and fast version of using `catto`.
 ```bash
 catto interactive
 ```
-This command will start an interactive `catto` session, that will prompt you with a series of questions and choices, and based on your choices 
+This command will start an interactive `catto` command line session, that will prompt you with a series of questions and choices, and based on your choices 
 it will download your images. It has a fancy UI, and it is hard to explain through words, so try it yourself and see.
 
 <strong>Interactive Command Live Output</strong>
@@ -85,7 +85,7 @@ it will download your images. It has a fancy UI, and it is hard to explain throu
 * `catto version` - *This command shows the current version of catto that is currently installed.*
 * `catto status` - *This command shows all the status of all the API endpoints used by catto to search for images.*
 * `catto show-all-animals` - *This command shows all the animal categories supported by catto currently.*
-* `catto logo` - *This command shows the logo of catto in an animated way.
+* `catto logo` - *This command shows the logo of catto in an animated way.*
 
 ## Note
 Currently, `catto` will download the images in `<selected-animal>-image-<random-hex-number>` format.
@@ -97,9 +97,6 @@ The reason for this feature is that they can be easily distinguished between dif
 sure that the images almost always have a unique random hex number.
 
 
-## Credits
-Well, this project is entirely free and Open Source, if you want, you can certainly use it in your own projects. 
-
-If you like this project, you can add a GitHub star to show your appreciation, and you can credit me in your project. 
-
-Thanks :) Have a nice day!
+## Appreciation
+Please read the LICENSE contained in this repository and follow its terms and conditions, and if you enjoy and like using this tool, please star
+and share this project, it would be greatly appreciated.
