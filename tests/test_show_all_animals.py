@@ -1,6 +1,6 @@
 from typer.testing import CliRunner
 
-from catto import app
+from src.catto import app
 
 runner = CliRunner()
 
@@ -8,4 +8,4 @@ runner = CliRunner()
 def test_app():
     result = runner.invoke(app, ["show-all-animals"])
     assert result.exit_code == 0
-    assert "All Animals Supported by Catto" in result.stdout.strip(" ").strip("\n")
+    assert "all animals supported by catto" in result.stdout.strip(" ").strip("\n").lower()
