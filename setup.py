@@ -47,5 +47,5 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Software Development :: Quality Assurance",
     ],
-    entry_points={"console_scripts": ["catto = src.catto:main"]},
+    entry_points={"console_scripts": ["catto = catto:app"]},
 )
