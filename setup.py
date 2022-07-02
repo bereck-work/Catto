@@ -14,10 +14,13 @@ setup(
     version="1.0.4",
     description="A simple command line tool that downloads cute animals images of your choice.",
     author="KortaPo",
-    author_email="bereckobrian",
+    author_email="bereckobrian@gmail.com",
+    maintainer="KortaPo",
+    maintainer_email="bereckobrian@gmail.com",
+    license="BSD 3 CLAUSE LICENSE",
     packages=find_packages("catto"),
-    py_modules=[splitext(basename(path))[0] for path in glob("catto/*.py")],
-    package_dir={"": "catto"},
+    py_modules=[splitext(basename(path))[0] for path in glob("src/catto/*.py")],
+    package_dir={"src": "catto"},
     include_package_data=True,
     python_requires=">=3.8",
     install_requires=[
@@ -44,5 +47,5 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Software Development :: Quality Assurance",
     ],
-    entry_points={"console_scripts": ["catto = catto:app"]},
+    entry_points={"console_scripts": ["catto = src.catto:main"]},
 )
