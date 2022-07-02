@@ -2,8 +2,8 @@
 name = "catto"
 version = "1.0.4"
 authors = ["KortaPo"]
-description = "A command line tool for downloading random cute animal images."
-license = "MIT"
+description = "A simple command line tool made for downloading cute animal images, gifs for you."
+license = "BSD 3 CLAUSE"
 readme = "Readme.md"
 
 [tool.poetry.dependencies]
@@ -46,6 +46,13 @@ py_version = 38
 line_length = 100
 combine_as_imports = true
 filter_files = true
+
+[tool.poetry.scripts]
+catto = "src.catto.main:call"
+
+
+[tool.taskipy.scripts]
+coverage = "coverage report -m"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
