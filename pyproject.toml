@@ -48,7 +48,7 @@ combine_as_imports = true
 filter_files = true
 
 [tool.poetry.scripts]
-catto = "src.catto.main:call"
+catto = "src.catto.main:app"
 
 
 [tool.taskipy.scripts]
