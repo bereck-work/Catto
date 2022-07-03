@@ -20,7 +20,7 @@ setup(
     license="BSD 3 CLAUSE LICENSE",
     packages=find_packages("catto"),
     py_modules=[splitext(basename(path))[0] for path in glob("src/catto/*.py")],
-    package_dir={"src": "catto"},
+    package_dir={"": "catto"},
     include_package_data=True,
     python_requires=">=3.8",
     install_requires=[
@@ -47,5 +47,5 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Software Development :: Quality Assurance",
     ],
-    entry_points={"console_scripts": ["catto = catto:app"]},
+    entry_points={"console_scripts": ["catto = src.catto.main:app"]},
 )
