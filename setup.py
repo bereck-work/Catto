@@ -9,18 +9,25 @@ CURRENT_DIR = Path(__file__).parent
 sys.path.insert(0, str(CURRENT_DIR))  # for setuptools.build_meta
 
 
+def get_long_description() -> str:
+    return (
+            (CURRENT_DIR / "README.md").read_text(encoding="utf8")
+    )
+
+
 setup(
     name="catto",
     version="1.0.4",
     description="A simple command line tool that downloads cute animals images of your choice.",
+    long_description=get_long_description(),
     author="KortaPo",
     author_email="bereckobrian@gmail.com",
     maintainer="KortaPo",
     maintainer_email="bereckobrian@gmail.com",
     license="BSD 3 CLAUSE LICENSE",
-    packages=find_packages("catto"),
-    py_modules=[splitext(basename(path))[0] for path in glob("src/catto/*.py")],
-    package_dir={"": "catto"},
+    packages=find_packages(where="src"),
+    py_modules=[splitext(basename(path))[0] for path in glob("src/*.py")],
+    package_dir={"": "src"},
     include_package_data=True,
     python_requires=">=3.8",
     install_requires=[
@@ -33,6 +40,7 @@ setup(
         "colorama",
         "pillow",
     ],
+    zip_safe=False,
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Environment :: Console",
@@ -47,5 +55,5 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         "Topic :: Software Development :: Quality Assurance",
     ],
-    entry_points={"console_scripts": ["catto = src.catto.main:app"]},
+    entry_points={"console_scripts": ["catto = catto:main"]},
 )
