@@ -31,7 +31,6 @@ written.
 ### Code Changes
 * The functions attached to the command decorator now return command data, instead of returning None.
 * Pytest functions now use regex to remove unnecessary ansi characters for better string search.
-* Fixed a bug in `interactive_print` function that print words without spaces in between.
 * The file with name `downloader.py` has been renamed to `api.py`.
 * class `Client`'s attributes are now private.
 * Loguru's logger object that was an attribute in class `Client` is now removed.
@@ -41,3 +40,4 @@ written.
 * Fixed a stupid bug in method `save_image_from_url` in class `Client`, where the hex code of the image that was saved is different and when it is returned as data in the dict, it was different, as it was called seperately and generated different hex value, now the hex value is generated once and is assigned to a variable.
 * Rewrote the logic of function `interactive_print`.
 * Changed `with underline` to `underline` in ColorEnum class.
+* Added all the updated catto command defintions.
