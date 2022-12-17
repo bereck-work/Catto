@@ -31,6 +31,7 @@ written.
 ### Code Changes
 * The functions attached to the command decorator now return command data, instead of returning None.
 * Pytest functions now use regex to remove unnecessary ansi characters for better string search.
+* Fixed a bug in `interactive_print` function that print words without spaces in between.
 * The file with name `downloader.py` has been renamed to `api.py`.
 * class `Client`'s attributes are now private.
 * Loguru's logger object that was an attribute in class `Client` is now removed.
