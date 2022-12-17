@@ -123,9 +123,9 @@ def interactive_print(
             if word in specific_words_to_color.keys():
                 words[
                     words.index(word)
-                ] = f"[{specific_words_to_color.get(word)}]{word}"
+                ] = f"[{specific_words_to_color.get(word)}] {word}"
             else:
-                words[words.index(word)] = f"[{color}]{word}"
+                words[words.index(word)] = f"[{color}] {word}"
 
         final_text = "".join(words)
 
@@ -139,11 +139,11 @@ def interactive_print(
             return
 
     if bold:
-        console.print(f"[bold][{color}]{text}")
+        console.print(f"[bold][{color}] {text}")
         print(flush=flush, end="\n" if end_with_newline else None)
         return
     else:
-        console.print(f"[{color}]{text}")
+        console.print(f"[{color}] {text}")
         print(flush=flush, end="\n" if end_with_newline else None)
         return
 
