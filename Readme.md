@@ -57,7 +57,7 @@ it will download your images. It has a fancy UI, and it is hard to explain throu
 * `catto version` - *This command shows the current version of catto that is currently installed.*
 * `catto status` - *This command shows all the status of all the API endpoints used by catto to search for images.*
 * `catto show-all-categories` - *This command shows all the animal categories supported by catto currently.*
-* `catto logo` - *This command shows the logo of catto in an animated way.
+* `catto logo` - *This command shows the logo of catto in an animated way.*
 
 ## Note
 Currently, `catto` will download the images in `<selected-animal>-image-<random-hex-number>` format.
