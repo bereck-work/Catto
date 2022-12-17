@@ -1,2 +1,2 @@
-from .downloader import *
+from .api import *
 from .interactive import *
