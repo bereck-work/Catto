@@ -36,7 +36,7 @@ Let's dissect the above command a bit more:
 This is the simplest and the fastest way to download your images using `catto`. 
 
 <strong>Download Command Output</strong>
-<img src="./gallery/catto-output/catto_download_output.png" width=450px></img>
+<img src="./gallery/catto-output/catto-download-command.png" width=450px></img>
 
 <strong>2.) Interactive</strong>
 ```bash
