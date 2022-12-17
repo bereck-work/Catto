@@ -6,7 +6,7 @@ This app is written in [Python](https://www.python.org/downloads/release/python-
 Catto can be directly installed using [pip package manager](https://pip.pypa.io/en/stable/) or [Poetry package manager](https://python-poetry.org/) using git:
 
 ## Python Version Requirements
-Python v3.10 or above is required.
+Python version: 3.10 or above is required.
 
 <strong>Pip</strong>
 ```bash
